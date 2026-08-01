@@ -195,14 +195,20 @@ form.addEventListener("submit", async (event) => {
   try {
     if (!appToken) await loadConfig();
     const payload = buildPayload();
-    const response = await fetch("/api/jobs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-App-Token": appToken,
-      },
-      body: JSON.stringify(payload),
-    });
+    const sendJob = () => fetch("/api/jobs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-App-Token": appToken,
+        },
+        body: JSON.stringify(payload),
+      });
+    let response = await sendJob();
+    if (response.status === 403) {
+      // Render đổi process/token khi deploy hoặc đánh thức máy miễn phí.
+      await loadConfig();
+      response = await sendJob();
+    }
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Không tạo được tác vụ");
 

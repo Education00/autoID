@@ -177,7 +177,14 @@ class AppHandler(BaseHTTPRequestHandler):
         if not origin:
             return True
         parsed = urlparse(origin)
-        return parsed.scheme in {"http", "https"} and parsed.netloc == self.headers.get("Host")
+        forwarded_host = self.headers.get("X-Forwarded-Host")
+        host = (forwarded_host or self.headers.get("Host") or "").split(",", 1)[0].strip()
+        host_name = urlparse(f"//{host}").hostname
+        return (
+            parsed.scheme in {"http", "https"}
+            and bool(parsed.hostname)
+            and parsed.hostname == host_name
+        )
 
     def _authorized(self) -> bool:
         return secrets.compare_digest(self.headers.get("X-App-Token", ""), SERVER_TOKEN)
