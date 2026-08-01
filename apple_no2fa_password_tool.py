@@ -16,6 +16,7 @@ import argparse
 import csv
 import difflib
 import getpass
+import os
 import re
 import secrets
 import string
@@ -847,7 +848,15 @@ def auto_change_pass(
 
     with sync_playwright() as playwright:
         _emit_progress(progress_callback, "Đang mở trình duyệt Apple")
-        browser = playwright.chromium.launch(headless=headless, slow_mo=slow_mo)
+        launch_options: dict[str, Any] = {"headless": headless, "slow_mo": slow_mo}
+        if os.environ.get("CLOUD_MODE", "").lower() == "true" or os.environ.get("RENDER"):
+            launch_options["args"] = [
+                "--disable-dev-shm-usage",
+                "--disable-extensions",
+                "--disable-gpu",
+                "--no-sandbox",
+            ]
+        browser = playwright.chromium.launch(**launch_options)
         context = browser.new_context(locale="vi-VN")
         page = context.new_page()
         page.set_default_timeout(timeout_ms)

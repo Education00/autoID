@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import mimetypes
+import os
 import secrets
 import threading
 import time
@@ -19,9 +20,12 @@ from apple_no2fa_password_tool import AppleToolError, auto_change_pass, parse_ac
 
 
 APP_DIR = Path(__file__).resolve().parent
-WEB_DIR = APP_DIR / "web"
+WEB_DIR = APP_DIR / "web" if (APP_DIR / "web" / "index.html").is_file() else APP_DIR
 MAX_BODY_BYTES = 64 * 1024
 SERVER_TOKEN = secrets.token_urlsafe(32)
+CLOUD_MODE = os.environ.get("CLOUD_MODE", "").lower() == "true" or bool(
+    os.environ.get("RENDER")
+)
 
 
 @dataclass
@@ -233,7 +237,10 @@ class AppHandler(BaseHTTPRequestHandler):
             self._serve_file("app.js")
             return
         if parsed.path == "/api/config":
-            self._send_json(HTTPStatus.OK, {"app_token": SERVER_TOKEN})
+            self._send_json(
+                HTTPStatus.OK,
+                {"app_token": SERVER_TOKEN, "cloud_mode": CLOUD_MODE},
+            )
             return
         if parsed.path.startswith("/api/jobs/"):
             job_id = parsed.path.rsplit("/", 1)[-1]
@@ -265,7 +272,7 @@ class AppHandler(BaseHTTPRequestHandler):
             password_length = int(length_value)
             if not 8 <= password_length <= 32:
                 raise AppleToolError("Độ dài mật khẩu mới phải từ 8 đến 32")
-            show_browser = payload.get("show_browser", True) is not False
+            show_browser = payload.get("show_browser", True) is not False and not CLOUD_MODE
         except (AppleToolError, TypeError, ValueError) as exc:
             message = str(exc) if str(exc) else "Dữ liệu không hợp lệ"
             self._send_json(HTTPStatus.BAD_REQUEST, {"error": message})
@@ -322,8 +329,8 @@ class AppHandler(BaseHTTPRequestHandler):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Apple No2FA local web setup")
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8765")))
     parser.add_argument("--no-open", action="store_true")
     args = parser.parse_args()
 
