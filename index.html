@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f5f5f7" />
+    <title>Apple No2FA Setup</title>
+    <link rel="stylesheet" href="/app.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/" aria-label="Apple No2FA Setup">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M12 2.5 20 6v5.7c0 4.9-3.1 8.3-8 10.1-4.9-1.8-8-5.2-8-10.1V6l8-3.5Z" />
+              <path d="m8.6 12.2 2.1 2.1 4.8-5" />
+            </svg>
+          </span>
+          <span>No2FA Setup</span>
+        </a>
+        <span class="local-badge"><i></i> Chạy nội bộ</span>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">APPLE ACCOUNT</p>
+        <h1 id="page-title">Thiết lập mật khẩu mới</h1>
+        <p class="intro-copy">Nhập ngày sinh và đủ 3 câu hỏi. Tool sẽ tự nhận dạng 2 câu bất kỳ Apple yêu cầu.</p>
+        <div class="privacy-note">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 10V7.8a4.5 4.5 0 0 1 9 0V10M6 10h12v10H6z" /></svg>
+          <span>Dữ liệu chỉ được xử lý trên máy này và không lưu lại.</span>
+        </div>
+      </section>
+
+      <section class="panel" id="form-panel">
+        <form id="setup-form" novalidate>
+          <div class="section-heading">
+            <span class="step-number">1</span>
+            <div>
+              <h2>Thông tin tài khoản</h2>
+              <p>ID no2FA dạng câu hỏi bảo mật</p>
+            </div>
+          </div>
+
+          <div class="field-grid account-grid">
+            <label class="field field-wide">
+              <span>Apple ID</span>
+              <input id="email" name="email" type="email" autocomplete="username" inputmode="email" placeholder="example@icloud.com" required />
+              <small class="field-error"></small>
+            </label>
+
+            <label class="field field-wide">
+              <span>Mật khẩu hiện tại</span>
+              <span class="password-wrap">
+                <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu" required />
+                <button class="reveal-button" type="button" data-reveal="password" aria-label="Hiện mật khẩu">Hiện</button>
+              </span>
+              <small class="field-error"></small>
+            </label>
+
+            <label class="field field-wide">
+              <span>Ngày tháng năm sinh</span>
+              <input id="birth-date" name="birth_date" type="date" autocomplete="bday" required />
+              <small class="field-error"></small>
+            </label>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="section-heading">
+            <span class="step-number">2</span>
+            <div>
+              <h2>Ba câu hỏi bảo mật</h2>
+              <p>Có thể ghi ngắn như “Biệt danh”, “Thú cưng”</p>
+            </div>
+          </div>
+
+          <div class="questions">
+            <fieldset class="question-card">
+              <legend>Câu hỏi 1</legend>
+              <label class="field">
+                <span>Nội dung nhận dạng</span>
+                <input name="question_1" type="text" autocomplete="off" placeholder="Ví dụ: Biệt danh" required />
+                <small class="field-error"></small>
+              </label>
+              <label class="field">
+                <span>Câu trả lời</span>
+                <span class="password-wrap">
+                  <input id="answer-1" name="answer_1" type="password" autocomplete="off" spellcheck="false" placeholder="Nhập câu trả lời" required />
+                  <button class="reveal-button" type="button" data-reveal="answer-1" aria-label="Hiện câu trả lời 1">Hiện</button>
+                </span>
+                <small class="field-error"></small>
+              </label>
+            </fieldset>
+
+            <fieldset class="question-card">
+              <legend>Câu hỏi 2</legend>
+              <label class="field">
+                <span>Nội dung nhận dạng</span>
+                <input name="question_2" type="text" autocomplete="off" placeholder="Ví dụ: Thú cưng" required />
+                <small class="field-error"></small>
+              </label>
+              <label class="field">
+                <span>Câu trả lời</span>
+                <span class="password-wrap">
+                  <input id="answer-2" name="answer_2" type="password" autocomplete="off" spellcheck="false" placeholder="Nhập câu trả lời" required />
+                  <button class="reveal-button" type="button" data-reveal="answer-2" aria-label="Hiện câu trả lời 2">Hiện</button>
+                </span>
+                <small class="field-error"></small>
+              </label>
+            </fieldset>
+
+            <fieldset class="question-card">
+              <legend>Câu hỏi 3</legend>
+              <label class="field">
+                <span>Nội dung nhận dạng</span>
+                <input name="question_3" type="text" autocomplete="off" placeholder="Ví dụ: Đội thể thao" required />
+                <small class="field-error"></small>
+              </label>
+              <label class="field">
+                <span>Câu trả lời</span>
+                <span class="password-wrap">
+                  <input id="answer-3" name="answer_3" type="password" autocomplete="off" spellcheck="false" placeholder="Nhập câu trả lời" required />
+                  <button class="reveal-button" type="button" data-reveal="answer-3" aria-label="Hiện câu trả lời 3">Hiện</button>
+                </span>
+                <small class="field-error"></small>
+              </label>
+            </fieldset>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="section-heading">
+            <span class="step-number">3</span>
+            <div>
+              <h2>Tùy chọn chạy</h2>
+              <p>Mật khẩu mới được tạo ngẫu nhiên</p>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <label class="range-row" for="password-length">
+              <span>
+                <b>Độ dài mật khẩu mới</b>
+                <small>Từ 8 đến 32 ký tự</small>
+              </span>
+              <output id="length-output" for="password-length">12</output>
+            </label>
+            <input id="password-length" type="range" min="8" max="32" value="12" />
+
+            <div class="setting-divider"></div>
+
+            <label class="switch-row">
+              <span>
+                <b>Hiện trình duyệt Apple</b>
+                <small>Nên bật để thấy nếu Apple yêu cầu thao tác thêm</small>
+              </span>
+              <input id="show-browser" type="checkbox" checked />
+              <i class="switch" aria-hidden="true"></i>
+            </label>
+          </div>
+
+          <button class="primary-button" id="submit-button" type="submit">
+            <span>Bắt đầu đổi mật khẩu</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+          </button>
+          <p class="form-footnote">Nếu gặp 2FA hoặc CAPTCHA, tool sẽ dừng an toàn.</p>
+        </form>
+      </section>
+
+      <section class="panel state-panel hidden" id="status-panel" aria-live="polite">
+        <div class="state-icon running-icon" aria-hidden="true"><i></i><i></i><i></i></div>
+        <p class="eyebrow">ĐANG XỬ LÝ</p>
+        <h2 id="status-title">Đang khởi động</h2>
+        <p id="status-copy">Giữ nguyên cửa sổ này trong lúc tool làm việc.</p>
+        <div class="progress-track"><i id="progress-bar"></i></div>
+        <div class="status-account" id="status-account"></div>
+      </section>
+
+      <section class="panel state-panel result-panel hidden" id="result-panel" aria-live="polite">
+        <div class="state-icon success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="m6.5 12.5 3.5 3.5 7.5-8" /></svg>
+        </div>
+        <p class="eyebrow success-text">HOÀN TẤT</p>
+        <h2>Đổi mật khẩu thành công</h2>
+        <p>Mật khẩu mới chỉ hiển thị trong phiên này.</p>
+        <div class="result-password">
+          <code id="result-password"></code>
+          <button id="copy-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8h10v12H9zM5 16H4V4h10v1" /></svg>
+            <span>Sao chép</span>
+          </button>
+        </div>
+        <button class="secondary-button" id="reset-button" type="button">Làm tài khoản khác</button>
+      </section>
+
+      <section class="panel state-panel error-panel hidden" id="error-panel" aria-live="assertive">
+        <div class="state-icon error-icon" aria-hidden="true">!</div>
+        <p class="eyebrow error-text">CHƯA HOÀN TẤT</p>
+        <h2>Có lỗi xảy ra</h2>
+        <p id="error-message"></p>
+        <button class="secondary-button" id="retry-button" type="button">Kiểm tra và thử lại</button>
+      </section>
+    </main>
+
+    <footer>
+      <span>Apple No2FA Setup</span>
+      <span>Chỉ dùng cho tài khoản được phép quản lý</span>
+    </footer>
+
+    <div class="toast hidden" id="toast" role="status">Đã sao chép mật khẩu</div>
+  </body>
+</html>
