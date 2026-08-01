@@ -481,6 +481,23 @@ class AppleAccountAutomator:
         "button:has-text('Xác minh')",
         "button:has-text('Verify')",
     )
+    SECURITY_QUESTION_OPTION_SELECTORS = (
+        "button:has-text('Trả lời câu hỏi bảo mật')",
+        "[role='button']:has-text('Trả lời câu hỏi bảo mật')",
+        "label:has-text('Trả lời câu hỏi bảo mật')",
+        "button:has-text('Câu hỏi bảo mật')",
+        "[role='button']:has-text('Câu hỏi bảo mật')",
+        "label:has-text('Câu hỏi bảo mật')",
+        "button:has-text('Answer security questions')",
+        "[role='button']:has-text('Answer security questions')",
+        "label:has-text('Answer security questions')",
+        "button:has-text('Security questions')",
+        "[role='button']:has-text('Security questions')",
+        "label:has-text('Security questions')",
+        "input[type='radio'][value*='security' i]",
+        "input[type='radio'][id*='security' i]",
+        "input[type='radio'][name*='security' i]",
+    )
 
     def __init__(
         self,
@@ -553,6 +570,39 @@ class AppleAccountAutomator:
 
     def _raise_for_blocker(self) -> None:
         text = self._page_text()
+        if any(
+            marker in text
+            for marker in (
+                "apple account or password was incorrect",
+                "apple id or password was incorrect",
+                "incorrect password",
+                "tai khoan apple hoac mat khau khong chinh xac",
+                "id apple hoac mat khau khong chinh xac",
+                "mat khau khong dung",
+            )
+        ):
+            raise AppleToolError("Apple ID hoặc mật khẩu hiện tại không đúng")
+        if any(
+            marker in text
+            for marker in (
+                "account has been locked",
+                "apple account is locked",
+                "apple id is locked",
+                "locked for security reasons",
+                "tai khoan apple da bi khoa",
+                "tai khoan bi khoa",
+            )
+        ):
+            raise AppleToolError("Apple Account đang bị khóa, cần chạy luồng mở khóa")
+        if any(
+            marker in text
+            for marker in (
+                "apple account is not active",
+                "apple id is not active",
+                "tai khoan apple khong hoat dong",
+            )
+        ):
+            raise AppleToolError("Apple Account không hoạt động")
         captcha_selectors = (
             "iframe[src*='captcha' i]",
             "[class*='captcha' i]",
@@ -590,6 +640,38 @@ class AppleAccountAutomator:
         self._click(self.SIGN_IN_SELECTORS)
         self.page.wait_for_timeout(1_000)
         self._raise_for_blocker()
+
+    def choose_security_questions_if_requested(self) -> bool:
+        """Chọn câu hỏi bảo mật khi Apple hiển thị nhiều cách xác minh."""
+        deadline = time.monotonic() + min(self.timeout_ms, 15_000) / 1000
+        while time.monotonic() < deadline:
+            self._raise_for_blocker()
+            if self._has_visible(self.DOB_INPUT_SELECTORS) or self._has_visible(
+                self.ANSWER_INPUT_SELECTORS
+            ):
+                return False
+
+            options = self._find_all(self.SECURITY_QUESTION_OPTION_SELECTORS, 0)
+            if options:
+                option = options[0]
+                option.click()
+                self.page.wait_for_timeout(500)
+
+                # Một số giao diện dùng radio + nút Tiếp tục, số khác dùng
+                # nguyên thẻ làm nút và tự chuyển trang ngay sau khi chọn.
+                if not self._has_visible(self.DOB_INPUT_SELECTORS) and not self._has_visible(
+                    self.ANSWER_INPUT_SELECTORS
+                ):
+                    continue_buttons = self._find_all(self.CONTINUE_SELECTORS, 0)
+                    if continue_buttons:
+                        continue_buttons[0].click()
+
+                self.page.wait_for_timeout(1_000)
+                self._raise_for_blocker()
+                return True
+
+            self.page.wait_for_timeout(250)
+        return False
 
     def fill_birth_date_if_requested(self) -> bool:
         # Chờ đúng challenge xuất hiện nhưng thoát sớm nếu Apple chuyển thẳng
@@ -864,6 +946,8 @@ def auto_change_pass(
         try:
             _emit_progress(progress_callback, "Đang đăng nhập Apple Account")
             automator.sign_in()
+            _emit_progress(progress_callback, "Đang chọn xác minh bằng câu hỏi bảo mật")
+            automator.choose_security_questions_if_requested()
             _emit_progress(progress_callback, "Đang kiểm tra ngày sinh")
             automator.fill_birth_date_if_requested()
             _emit_progress(progress_callback, "Đang nhận dạng 2 câu hỏi bảo mật")
